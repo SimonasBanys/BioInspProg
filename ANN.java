@@ -1,30 +1,31 @@
+import java.util.Arrays;
 import java.util.LinkedList;
 
 public class ANN {
 
     private double[] inputs;
     private int layers;
-    private LinkedList<AnnNode[]> layer = new LinkedList();
+    private LinkedList<AnnNode[]> layer = new LinkedList<AnnNode[]>();
 
-    public double sigmoid(double x){
+    private double sigmoid(double x){
         double out;
         out = 1/(1+Math.exp(-x));
         return out;
     }
 
-    public double nullFunc(double x){
-        return 0;
+    private double nullFunc(double x){
+        return x*0.0;
     }
 
-    public double hypTan(double x){
+    private double hypTan(double x){
         return Math.tanh(x);
     }
 
-    public double cos(double x){
+    private double cos(double x){
         return Math.cos(x);
     }
 
-    public double gauss(double x){
+    private double gauss(double x){
         return Math.exp(0-(x*x/2));
     }
 
@@ -53,67 +54,67 @@ public class ANN {
         double[] temp;
         for (int i = 0; i < next.length; i++){
             switch (x){
-                case 0: {
-                    next[i] = nullFunc(this.layer.getFirst()[i].getWeightedSum());
+                case 0:
+                    next[i] = this.nullFunc(this.layer.getFirst()[i].getWeightedSum());
                     this.layer.getFirst()[i].setOut(next[i]);
-                }
-                case 1: {
-                    next[i] = hypTan(this.layer.getFirst()[i].getWeightedSum());
+                    break;
+                case 1:
+                    next[i] = this.hypTan(this.layer.getFirst()[i].getWeightedSum());
                     this.layer.getFirst()[i].setOut(next[i]);
-                }
-                case 2: {
-                    next[i] = cos(this.layer.getFirst()[i].getWeightedSum());
+                    break;
+                case 2:
+                    next[i] = this.cos(this.layer.getFirst()[i].getWeightedSum());
                     this.layer.getFirst()[i].setOut(next[i]);
-                }
-                case 3: {
-                    next[i] = hypTan(this.layer.getFirst()[i].getWeightedSum());
-                    this.layer.getFirst()[i].setOut(next[i]);
-                }
-                case 4: {
+                    break;
+                case 3:
                     next[i] = sigmoid(this.layer.getFirst()[i].getWeightedSum());
                     this.layer.getFirst()[i].setOut(next[i]);
-                }
-                case 5: {
+                    break;
+                case 4:
                     next[i] = gauss(this.layer.getFirst()[i].getWeightedSum());
                     this.layer.getFirst()[i].setOut(next[i]);
-                }
+                    break;
+                default :
+                    break;
             }
+            System.out.print(next[i] + " ");
         }
-
+        System.out.println();
 
         for (int i = 1; i < layers; i++){
-            temp = next;
+            temp = Arrays.copyOf(next, next.length);
             next = new double[this.layer.get(i).length];
             for (int j = 0; j < next.length; j++){
                 layer.get(i)[j].calcWeightedSum(temp);
                 switch (x){
-                    case 0: {
-                        next[j] = nullFunc(this.layer.get(i)[j].getWeightedSum());
-                        this.layer.getFirst()[i].setOut(next[j]);
-                    }
-                    case 1: {
-                        next[j] = hypTan(this.layer.get(i)[j].getWeightedSum());
-                        this.layer.getFirst()[i].setOut(next[j]);
-                    }
-                    case 2: {
-                        next[j] = cos(this.layer.get(i)[j].getWeightedSum());
-                        this.layer.getFirst()[i].setOut(next[j]);
-                    }
-                    case 3: {
-                        next[j] = hypTan(this.layer.get(i)[j].getWeightedSum());
-                        this.layer.getFirst()[i].setOut(next[j]);
-                    }
-                    case 4: {
+                    case 0:
+                        next[j] = this.nullFunc(this.layer.get(i)[j].getWeightedSum());
+                        this.layer.get(i)[j].setOut(next[j]);
+                        break;
+                    case 1:
+                        next[j] = this.hypTan(this.layer.get(i)[j].getWeightedSum());
+                        this.layer.get(i)[j].setOut(next[j]);
+                        break;
+                    case 2:
+                        next[j] = this.cos(this.layer.get(i)[j].getWeightedSum());
+                        this.layer.get(i)[j].setOut(next[j]);
+                        break;
+                    case 3:
                         next[j] = sigmoid(this.layer.get(i)[j].getWeightedSum());
-                        this.layer.getFirst()[i].setOut(next[j]);
-                    }
-                    case 5: {
+                        this.layer.get(i)[j].setOut(next[j]);
+                        break;
+                    case 4:
                         next[j] = gauss(this.layer.get(i)[j].getWeightedSum());
-                        this.layer.getFirst()[i].setOut(next[j]);
-                    }
+                        this.layer.get(i)[j].setOut(next[j]);
+                        break;
+                    default :
+                        break;
                 }
+                System.out.print(next[j] + " ");
             }
+            System.out.println();
         }
+        System.out.println();
 
     }
 
