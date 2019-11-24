@@ -21,6 +21,9 @@ import java.util.ArrayList;
 
 public class PSO {
 
+	// Function file name
+	String data_set_file = "C:/Users/Chay-z/eclipse-workspace/BioInspiredComp/src/package1/Data/Data/1in_cubic.txt";
+	
 	// Hyper Parameters for the PSO
 	public int swarm_size = 50;				// How many particles are created
 	public float velocity_weight = 1;		// Weighting given to the current velocity when calculating new positions
@@ -28,19 +31,17 @@ public class PSO {
 	public float informant_best_weight = 1;	// Weighting given to the best informant's position when calculating new positions
 	public float global_best_weight = 1;	// Weighting given to the best global position when calculating new positions
 	public float step_size = 1;				// Step size for the PSO algorithm
+	public int max_informants = 10;			// Max number of informants for each particle in PSO
+	public int max_iterations = 100;			// Max number of PSO iterations 
+	public double max_error = 0.01;			// Highest acceptable error level for the PSO
 	
 	// Hyper Parameters for the ANN
 	public int num_layers = 3;
 	public int num_nodes = 3;
 	public int activation_function = 1;		// Activation function for the ANN
-	
-	public int max_informants = 10;			// Max number of informants for each particle in PSO
-	public int max_iterations;			// Max number of PSO iterations 
-	public double max_error;			// Highest acceptable error level for the PSO
-	
 	public int dimensions;				// Number of parameters we're optimising, equal to the number of weights in the ANN
 	
-	public ANN ann;
+	public static ANN ann;
 	
 	// Function to be approximated
 	public static ArrayList<ArrayList<Double>> function;
@@ -57,24 +58,59 @@ public class PSO {
 	
 	public static void main(String[] args) throws IOException {
 		
-		PSO pso = new PSO();	// Create the PSO
+		// Create the PSO and ANNs
+		PSO pso = new PSO();
 		double[] nodes = {0.0};
 		pso.ann = new ANN(pso.num_nodes, pso.num_layers, nodes);
 		pso.dimensions = pso.ann.getMaxWeights();
 		
 		// Read in the function as an array list of pairs (array lists)
-		function = read_function("C:/Users/Chay-z/eclipse-workspace/BioInspiredComp/src/package1/Data/Data/1in_cubic.txt");
+		function = read_function(pso.data_set_file);
 		if (function == null) {
 			System.out.println("Error in reading function from file.");
 			System.exit(1);
 		}
 		
 		// Create particles and assign them informants, positions and velocities for every dimension
-		populate(pso.swarm_size, pso.particles);
+		populate(pso.swarm_size, pso.particles, pso.dimensions);
 		
-		double global_best = 0;
+		double global_best = 0.0;
 		
+		// Loop until best solution is found, or max iterations have been met
 		
+		// For every particle, assess fitness
+		// Update global best fitness
+		
+		// For every particle
+		// Store the previous fittest location (Fittest set of weights)
+		// Store the previous fittest informants location
+		// Store the global fittest location
+		// For every dimension (Weight value)
+		// Assign a random weight to the velocity weightings
+		// Assign a new velocity to that dimension (weight)
+		
+		// For every particle, update position
+		
+		int iterations = 0;
+		double error = 999;
+		while(iterations < pso.max_iterations && error > pso.max_error) {
+			
+			// Calculate new best fitness
+			for (Particle p : pso.particles) {
+				double fitness = assessFitness(p, pso.activation_function);
+				System.out.println(fitness);
+				if (fitness > global_best || global_best == 0.0) {
+					global_best = fitness;
+				}
+			}
+			
+			// Update velocities of every particle
+			
+			
+			// Update positions of every particle
+			
+			iterations++;
+		}
 	}
 	
 	public static ArrayList<ArrayList<Double>> read_function(String file_name) throws IOException {
@@ -102,7 +138,6 @@ public class PSO {
 					line = br.readLine();
 					
 				}
-				System.out.println(function);
 				br.close();
 				return function;
 				
@@ -113,7 +148,7 @@ public class PSO {
 			
 	}
 	
-	public static void populate(int length, ArrayList<Particle> populace) {
+	public static void populate(int length, ArrayList<Particle> populace, int dimensions) {
 		
 		/*
 		 * This function should assign each particle 1 random position and velocity for every dimension there is.
@@ -122,12 +157,16 @@ public class PSO {
 		 */
 		
 		for (int i = 0 ; i < length ; i++) {
-			populace.add(new Particle(-1, 1));
+			populace.add(new Particle(-1, 1, dimensions));
 		}
 		
+		for (Particle p : populace) {
+			System.out.println(p.positions);
+			System.out.println(p.velocities);
+		}
 	}
 	
-	public void assessFitness(Particle p) {
+	public static double assessFitness(Particle p, int activationFunction) {
 		
 		/*
 		 * This function aims to calculate the fitness of a given "position", being the weight of a node in our ANN.
@@ -148,16 +187,20 @@ public class PSO {
 			double sample_input = function.get(i).get(0);
 			double desired_output = function.get(i).get(1);
 			
-			// Get result from ANN with given input
 			// Change ANN's input value
+			double[] new_inputs = {sample_input};
+			ann.updateInputs(new_inputs);
+			
 			// Calculate all node values again
+			ann.calculate(activationFunction);
+			
 			// Get output value
-			double output = 
+			double actual_output = ann.getOutput();
 			mean_squared_error += Math.pow((desired_output - actual_output), 2);
 			
 		}
 		mean_squared_error = (1 / samples) * mean_squared_error;	
-		
+		return mean_squared_error;
 	}
 	
 }
