@@ -61,7 +61,7 @@ public class ANN {
             this.layout.add(lrs);
         }
         lrs = new AnnNode[1];                                                                                           // generates a single node in the final layer
-        lrs[0] = new AnnNode(this.layout.get(l-1).length);                                                              // makes sure that the node has the right amount of connections to the previous layer
+        lrs[0] = new AnnNode(this.layout.get(l-2).length);                                                              // makes sure that the node has the right amount of connections to the previous layer
         nodes[l-1] = lrs.length;
         maxWeights += lrs[0].getWeights().length;
         this.layout.add(lrs);                                                                                           // adds the final layer to the layout
@@ -172,9 +172,5 @@ public class ANN {
         for (int i = 0; i < this.layout.get(0).length; i++){
             this.layout.get(0)[i].calcWeightedSum(this.inputs);
         }
-    }
-    
-    public double getOutput() {
-    	return layout.get(layout.size() - 1)[0].getOut();
     }
 }
