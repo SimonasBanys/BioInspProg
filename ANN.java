@@ -173,4 +173,8 @@ public class ANN {
             this.layout.get(0)[i].calcWeightedSum(this.inputs);
         }
     }
+    
+    public double getOutput() {
+    	return layout.get(layout.size() - 1)[0].getOut();
+    }
 }
