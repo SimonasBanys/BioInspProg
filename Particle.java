@@ -1,18 +1,22 @@
+  
 package package1;
 
 import java.util.ArrayList;
 
 public class Particle {
 
-	int index;
-	double weight;
-	double velocity;
-	ArrayList<Particle> informants = new ArrayList<Particle>();
+	// Particle will store 1 position and velocity value for every single dimension in the PSO
+	ArrayList<Double> positions;
+	ArrayList<Double> velocities;
+	ArrayList<Double> best_positions;
 	
-	public Particle(double weight) {
+	// Must also keep a list of every informant for the current particle
+	ArrayList<Particle> informants;
+	
+	public Particle(int min_position, int max_position) {
 		
-		this.weight = weight;
-		velocity = 0;
+		// Positions and Velocities are randomly assigned
+		
 		
 	}
 	
