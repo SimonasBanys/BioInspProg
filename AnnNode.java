@@ -1,5 +1,3 @@
-import java.util.Vector;
-
 public class AnnNode {
 
     private double[] weights;
@@ -34,5 +32,9 @@ public class AnnNode {
 
     public void setOut(double out) {
         this.out = out;
+    }
+
+    public void setWeights(double[] weights){
+        this.weights = weights;
     }
 }
