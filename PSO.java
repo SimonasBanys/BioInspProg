@@ -28,20 +28,20 @@ public class PSO {
 	String data_set_file = "1in_cubic.txt";
 	
 	// Hyper Parameters for the PSO
-	public int swarm_size = 50;				// How many particles are created
+	public int swarm_size = 100;				// How many particles are created
 	public double velocity_weight = 1.0;		// Weighting given to the current velocity when calculating new positions
 	public double personal_best_weight = 1.0;	// Weighting given to particle's previous best position when calculating new positions
 	public double informant_best_weight = 1.0;	// Weighting given to the best informant's position when calculating new positions
 	public double global_best_weight = 1.0;	// Weighting given to the best global position when calculating new positions
 	public int step_size = 1;				// Step size for the PSO algorithm
 	public int max_informants = 10;			// Max number of informants for each particle in PSO
-	public int max_iterations = 100;			// Max number of PSO iterations 
+	public int max_iterations = 10;			// Max number of PSO iterations 
 	public double max_error = 0.01;			// Highest acceptable error level for the PSO
 	
 	// Hyper Parameters for the ANN
 	public int num_layers = 4;
 	public int num_nodes = 3;
-	public int activation_function = 4;		// Activation function for the ANN
+	public int activation_function = 1;		// Activation function for the ANN
 	public int dimensions;				// Number of parameters we're optimising, equal to the number of weights in the ANN
 	
 	// Creates an ANN to use
@@ -71,42 +71,22 @@ public class PSO {
 		
 		ArrayList<Double> global_best = null;
 		
-		// Loop until best solution is found, or max iterations have been met
-		
-		// For every particle, assess fitness
-		// Update global best fitness
-		
-		// For every particle
-		// Store the previous fittest location (Fittest set of weights)
-		// Store the previous fittest informants location
-		// Store the global fittest location
-		// For every dimension (Weight value)
-		// Assign a random weight to the velocity weightings
-		// Assign a new velocity to that dimension (weight)
-		
-		// For every particle, update position
-		
 		Random r = new Random();
 		int iterations = 0;
 		double error = 999;
 		while(iterations < this.max_iterations && error > this.max_error) {
 			
 			// Calculate new best fitness
+			int counter = 1;
 			for (Particle p : this.particles) {
 				double fitness = assessFitness(p.positions);
-				System.out.println("XXXXXXXXXXXXXXXXXXX");
-				System.out.println(assessFitness(p.positions));
-				System.out.println(assessFitness(p.positions));
-				System.out.println(assessFitness(p.positions));
-				System.out.println(assessFitness(p.positions));
-				System.out.println(assessFitness(p.positions));
-				System.out.println("XXXXXXXXXXXXXXXXXXX");
 				if (global_best == null || fitness > assessFitness(global_best)) {
 					global_best = new ArrayList<>(p.positions);
 				}
 				if (fitness > assessFitness(p.best_positions)) {
 					p.best_positions = new ArrayList<Double>(p.positions);
 				}
+				counter++;
 			}
 			
 			// Update velocities of every particle
@@ -119,6 +99,11 @@ public class PSO {
 					double current_velocity = p.velocities.get(i);
 					double best_informant_position = getBestInformant(p, i);
 					double new_velocity = (this.velocity_weight * current_velocity) + (pb_weight * (p.best_positions.get(i)) - current_position) + (in_weight * (best_informant_position - current_position)) + (gb_weight * (global_best.get(i) - current_position));
+					if (new_velocity > 1) {
+						new_velocity = 1.0;
+					} else if (new_velocity < -1) {
+						new_velocity = -1.0;
+					}
 					p.velocities.set(i, new_velocity);
 				}
 			}
@@ -136,9 +121,11 @@ public class PSO {
 					} else {
 						new_position = position + (velocity * step_size);
 					}
+					p.positions.set(i, new_position);
 				}
 			}
 			iterations++;
+			error = 1 - assessFitness(global_best);
 			
 			// Print current iteration and fitness
 			System.out.println("Current iteration: " + iterations);
@@ -147,15 +134,32 @@ public class PSO {
 			System.out.println();
 		}
 		
+		// Print best solution found so far
 		System.out.println("Best set of weights = " + global_best);
 		System.out.println("Fitness of these weights = " + assessFitness(global_best));
+		
+		// Test final best solution on the function
+		double[] weights = new double[global_best.size()];
+		for (int j = 0 ; j < global_best.size(); j++) {
+			weights[j] = global_best.get(j);
+		}
+		this.ann.setWeights(weights);
+		for (ArrayList<Double> set : function) {
+			System.out.println("Input: " + set.get(0));
+			System.out.println("Desired Output: " + set.get(1));
+			double[] new_inputs = {set.get(0)};
+			this.ann.updateInputs(new_inputs);
+			this.ann.calculate(this.activation_function);
+			double actual_output = ann.getOutput();
+			System.out.println("Actual Output: " + actual_output);
+		}
 	}
 	
 	public static void main(String[] args) throws Exception {
 		
 		// Create the PSO and ANNs
 		PSO pso = new PSO();
-		
+
 	}
 	
 	public static ArrayList<ArrayList<Double>> read_function(String file_name) throws IOException {
@@ -235,7 +239,11 @@ public class PSO {
 		int samples = function.size();
 		
 		// Set weights for current ANN
-		
+		double[] weights = new double[positions.size()];
+		for (int j = 0 ; j < positions.size(); j++) {
+			weights[j] = positions.get(j);
+		}
+		this.ann.setWeights(weights);
 		
 		// ANN is tested with each input / expected output stored in the function to calculate overall error
 		for (int i = 0 ; i < function.size() ; i++) {
@@ -247,26 +255,15 @@ public class PSO {
 			double[] new_inputs = {sample_input};
 			this.ann.updateInputs(new_inputs);
 			
-			// Update weights
-			double[] weights = new double[positions.size()];
-			for (int j = 0 ; j < positions.size(); j++) {
-				weights[j] = positions.get(j);
-			}
-			this.ann.setWeights(weights);
-			
 			// Calculate all node values again
 			this.ann.calculate(this.activation_function);
 			
 			// Get output value
 			double actual_output = ann.getOutput();
 			mean_squared_error += Math.pow((desired_output - actual_output), 2);
-			
-			System.out.println("Input: " + sample_input);
-			System.out.println("Expected Output: " + desired_output);
-			System.out.println("Actual Output: " + actual_output);
 		}
 		mean_squared_error = (1 / (double) samples) * mean_squared_error;
-		return mean_squared_error;
+		return 1 - mean_squared_error;
 	}
 	
 	public double getBestInformant(Particle p, int index) throws Exception {
