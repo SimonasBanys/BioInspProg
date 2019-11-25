@@ -30,7 +30,11 @@ public class ANN {
     }
 
     private double gauss(double x){
-        return Math.exp(0-(x*x/2));
+        return Math.exp(-(x*x/2));
+    }
+
+    private double aTan(double x){
+        return Math.atan(x);
     }
 
 // --------------------- End of Activation functions ------------
@@ -85,11 +89,15 @@ public class ANN {
                     this.layout.get(0)[i].setOut(next[i]);
                     break;
                 case 3:
-                    next[i] = sigmoid(this.layout.get(0)[i].getWeightedSum());
+                    next[i] = this.sigmoid(this.layout.get(0)[i].getWeightedSum());
                     this.layout.get(0)[i].setOut(next[i]);
                     break;
                 case 4:
-                    next[i] = gauss(this.layout.get(0)[i].getWeightedSum());
+                    next[i] = this.gauss(this.layout.get(0)[i].getWeightedSum());
+                    this.layout.get(0)[i].setOut(next[i]);
+                    break;
+                case 5:
+                    next[i] = this.aTan(this.layout.get(0)[i].getWeightedSum());
                     this.layout.get(0)[i].setOut(next[i]);
                     break;
                 default :
@@ -115,11 +123,15 @@ public class ANN {
                         this.layout.get(i)[j].setOut(next[j]);
                         break;
                     case 3:
-                        next[j] = sigmoid(this.layout.get(i)[j].getWeightedSum());
+                        next[j] = this.sigmoid(this.layout.get(i)[j].getWeightedSum());
                         this.layout.get(i)[j].setOut(next[j]);
                         break;
                     case 4:
-                        next[j] = gauss(this.layout.get(i)[j].getWeightedSum());
+                        next[j] = this.gauss(this.layout.get(i)[j].getWeightedSum());
+                        this.layout.get(i)[j].setOut(next[j]);
+                        break;
+                    case 5:
+                        next[i] = this.aTan(this.layout.get(i)[j].getWeightedSum());
                         this.layout.get(i)[j].setOut(next[j]);
                         break;
                     default :

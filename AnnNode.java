@@ -13,6 +13,7 @@ public class AnnNode {
     }
 
     public void calcWeightedSum(double[] inp){
+        this.weightedSum = 0;
         for (int i = 0; i < inp.length; i++){
             this.weightedSum += this.weights[i] * inp[i];
         }
