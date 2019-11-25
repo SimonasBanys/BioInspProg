@@ -26,22 +26,23 @@ public class PSO {
 	
 	// Hyper Parameters for the PSO
 	public int swarm_size = 50;				// How many particles are created
-	public float velocity_weight = 1;		// Weighting given to the current velocity when calculating new positions
-	public float personal_best_weight = 1;	// Weighting given to particle's previous best position when calculating new positions
-	public float informant_best_weight = 1;	// Weighting given to the best informant's position when calculating new positions
-	public float global_best_weight = 1;	// Weighting given to the best global position when calculating new positions
-	public float step_size = 1;				// Step size for the PSO algorithm
+	public double velocity_weight = 1.0;		// Weighting given to the current velocity when calculating new positions
+	public double personal_best_weight = 1.0;	// Weighting given to particle's previous best position when calculating new positions
+	public double informant_best_weight = 1.0;	// Weighting given to the best informant's position when calculating new positions
+	public double global_best_weight = 1.0;	// Weighting given to the best global position when calculating new positions
+	public int step_size = 1;				// Step size for the PSO algorithm
 	public int max_informants = 10;			// Max number of informants for each particle in PSO
 	public int max_iterations = 100;			// Max number of PSO iterations 
 	public double max_error = 0.01;			// Highest acceptable error level for the PSO
 	
 	// Hyper Parameters for the ANN
-	public int num_layers = 3;
+	public int num_layers = 4;
 	public int num_nodes = 3;
-	public int activation_function = 1;		// Activation function for the ANN
+	public int activation_function = 2;		// Activation function for the ANN
 	public int dimensions;				// Number of parameters we're optimising, equal to the number of weights in the ANN
 	
-	public static ANN ann;
+	// Creates an ANN to use
+	public ANN ann;
 	
 	// Function to be approximated
 	public static ArrayList<ArrayList<Double>> function;
@@ -60,7 +61,7 @@ public class PSO {
 		
 		// Create the PSO and ANNs
 		PSO pso = new PSO();
-		double[] nodes = {0.0};
+		double[] nodes = {1.0};
 		pso.ann = new ANN(pso.num_nodes, pso.num_layers, nodes);
 		pso.dimensions = pso.ann.getMaxWeights();
 		
@@ -97,15 +98,24 @@ public class PSO {
 			
 			// Calculate new best fitness
 			for (Particle p : pso.particles) {
-				double fitness = assessFitness(p, pso.activation_function);
-				System.out.println(fitness);
+				double fitness = assessFitness(p, pso.activation_function, pso.ann);
+				System.out.println("Positions: " + p.positions);
+				System.out.println("Fitness:" + fitness + "\n");
 				if (fitness > global_best || global_best == 0.0) {
 					global_best = fitness;
 				}
 			}
 			
 			// Update velocities of every particle
-			
+			for (Particle p : pso.particles) {
+				for (int i = 0 ; i < p.positions.size() ; i++) {
+					// double pb_weight = Math.random(0, pso.personal_best_weight);
+					// double in_weight = Math.random(0, pso.informant_best_weight);
+					// double gb_weight = Math.random(0, pso.global_best_weight);
+					//double new_velocity = 0;
+					//p.velocities.set(i, new_velocity);
+				}
+			}
 			
 			// Update positions of every particle
 			
@@ -166,7 +176,7 @@ public class PSO {
 		}
 	}
 	
-	public static double assessFitness(Particle p, int activationFunction) {
+	public static double assessFitness(Particle p, int activationFunction, ANN ann) {
 		
 		/*
 		 * This function aims to calculate the fitness of a given "position", being the weight of a node in our ANN.
@@ -199,7 +209,7 @@ public class PSO {
 			mean_squared_error += Math.pow((desired_output - actual_output), 2);
 			
 		}
-		mean_squared_error = (1 / samples) * mean_squared_error;	
+		mean_squared_error = (1 / (double) samples) * mean_squared_error;
 		return mean_squared_error;
 	}
 	

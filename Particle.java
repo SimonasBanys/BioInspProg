@@ -28,7 +28,7 @@ public class Particle {
 	public void update_positions(ArrayList<Double> new_positions) {
 		if (new_positions.size() == positions.size()) {
 			for (int i = 0 ; i < new_positions.size(); i++) {
-				positions.add(i, new_positions.get(i));
+				positions.set(i, new_positions.get(i));
 			}
 		}
 	}
@@ -36,7 +36,7 @@ public class Particle {
 	public void update_velocities(ArrayList<Double> new_velocities) {
 		if (new_velocities.size() == velocities.size()) {
 			for (int i = 0 ; i < new_velocities.size(); i++) {
-				velocities.add(i, new_velocities.get(i));
+				velocities.set(i, new_velocities.get(i));
 			}
 		}
 	}
@@ -44,7 +44,7 @@ public class Particle {
 	public void update_best_positions(ArrayList<Double> new_best_positions) {
 		if (new_best_positions.size() == best_positions.size()) {
 			for (int i = 0 ; i < new_best_positions.size(); i++) {
-				positions.add(i, new_best_positions.get(i));
+				positions.set(i, new_best_positions.get(i));
 			}
 		}
 	}
