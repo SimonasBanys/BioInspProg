@@ -138,6 +138,7 @@ public class ANN {
                         break;
                 }
             }
+
         }
     }
 
@@ -152,7 +153,7 @@ public class ANN {
     public void setWeights(double[] w) throws Exception {
         if (w.length != this.maxWeights){                                                                               // checks if the size of new weight array for the ANN matches the size of current ANN weight array
             throw new Exception("new weight array size doesnt match existing one");                                     // throw exception if it doesnt match
-        } else {                                                                                                        // if matches perform the weigth update
+        } else {                                                                                                        // if matches perform the weight update
             int x = 0;                                                                                                  // index of the new weight array
             int workLayer = 0;                                                                                          // layer of nodes to be worked on
             double[] newWeights;                                                                                        // array for new weights
@@ -168,6 +169,9 @@ public class ANN {
                     workLayer++;
                 }
             }
+            for (int i = 0; i < this.layout.get(0).length; i++){
+                this.layout.get(0)[i].calcWeightedSum(this.inputs);
+            }
         }
     }
 
@@ -179,10 +183,14 @@ public class ANN {
         return nodes;
     }
 
-    public void updateInputs(double[] inp){                                                                             // method for updating the input array
+    public void updateInputs(double[] inp) throws Exception {                                                           // method for updating the input array
         this.inputs = inp;
         for (int i = 0; i < this.layout.get(0).length; i++){
-            this.layout.get(0)[i].calcWeightedSum(this.inputs);
+            if (this.inputs.length == this.layout.get(0)[i].getWeights().length) {
+                this.layout.get(0)[i].calcWeightedSum(this.inputs);
+            } else {
+                throw new Exception("New input array size missmatch");
+            }
         }
     }
     
